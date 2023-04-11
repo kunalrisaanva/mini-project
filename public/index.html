@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gruop chate Application</title>
+    <link rel="stylesheet" href="./index.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+    <script>
+
+        var socket = io();
+
+        function sendUserName(){
+            if(document.getElementById("name").value == ""){
+                alert("Enter your name")
+            }else{
+                socket.emit("setUserName",document.getElementById("name").value);
+            }
+       }  
+
+        var user;
+
+         socket.on("user-exists",function(data){
+            document.getElementById("err").innerHTML = data;
+         })
+
+         socket.on("user",function(data){
+            user = data.username
+            document.getElementById("user-form").innerHTML = '<input type="text" id="message">\
+            <button type="button" onclick="sendMessage()"> Send </button>\
+            <div id="messages-container"></div>\
+           '
+         })
+
+         function sendMessage(){
+           var message =  document.getElementById("message").value
+           if(message !== ''){
+            document.getElementById("message").value = '';
+            socket.emit("msg",{message:message , user:user})
+           }
+         }
+
+         socket.on("newmsg",(data)  => {
+            if(user){
+                document.getElementById("messages-container").innerHTML += `
+                <div>
+                <b>${data.user}</b>:${data.message}
+                <div/>
+                `
+            }
+               
+         })
+
+        
+    </script>
+
+</head>
+<body>
+
+   <h1>Gruop chate Application</h1>
+   <div id="user-form">
+    <div id="err" style="color: red;"></div>
+    <input type="text" name="name" id="name" placeholder="Enter Your Name">
+    <button type="button" onclick=sendUserName()>chate with Gruop</button>
+   </div>
+</body>
+</html>
